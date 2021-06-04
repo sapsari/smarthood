@@ -20,4 +20,9 @@ public class GUI : MonoBehaviour
     {
         TextPopulation.text = "Population: " + City.Population;
     }
+
+    public void Expand(int index)
+    {
+        City.Expand(index);
+    }
 }

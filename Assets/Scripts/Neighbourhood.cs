@@ -15,8 +15,11 @@ public class Neighbourhood : MonoBehaviour
     const int colSize = 4;
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
+        if (lots != null)
+            return;
+
         lots = new Lot[rowSize * colSize];
         for (int i = 0; i < rowSize * colSize; i++)
         {
@@ -27,12 +30,13 @@ public class Neighbourhood : MonoBehaviour
         city = FindObjectOfType<City>();
     }
 
+    /*
     // Update is called once per frame
     void Update()
     {
         
     }
-
+    */
 
 
     public bool Build(int location, LotType lotType)
@@ -158,7 +162,8 @@ public class Neighbourhood : MonoBehaviour
     public void Reset()
     {
         if (lots == null)
-            return;
+            //return;//**--
+            Start();
 
         for (int i = 0; i < lots.Length; i++)
             lots[i].Reset();

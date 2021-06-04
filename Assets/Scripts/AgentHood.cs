@@ -39,6 +39,9 @@ public class AgentHood : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
+        if (nh == null || nh.lots == null) // called when disabling the component
+            return;
+
         foreach (var building in nh.lots)
             sensor.AddObservation((int)building.Type);
     }
