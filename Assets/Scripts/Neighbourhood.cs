@@ -6,12 +6,13 @@ using System.Linq;
 public class Neighbourhood : MonoBehaviour
 {
     public int[] Buildings;
+    public bool IsTraining;
 
     // Start is called before the first frame update
     void Start()
     {
-        //Buildings = new int[4 * 4];
-        Buildings = new int[2 * 2];
+        Buildings = new int[4 * 4];
+        //Buildings = new int[2 * 2];
     }
 
     // Update is called once per frame
@@ -38,7 +39,8 @@ public class Neighbourhood : MonoBehaviour
 
         Buildings[location] = typ;
 
-        //transform.GetChild(location).GetComponent<Renderer>().material.color = Color.green;
+        if (!IsTraining)
+            transform.GetChild(location).GetComponent<Renderer>().material.color = Color.green;
 
         return true;
     }
@@ -53,9 +55,11 @@ public class Neighbourhood : MonoBehaviour
     {
         for (int i = 0; i < Buildings.Length; i++)
             Buildings[i] = 0;
-        /*
-        foreach (Transform child in transform)
-            child.GetComponent<Renderer>().material.color = Color.white;
-        */
+
+        if (!IsTraining)
+        {
+            foreach (Transform child in transform)
+                child.GetComponent<Renderer>().material.color = Color.white;
+        }
     }
 }

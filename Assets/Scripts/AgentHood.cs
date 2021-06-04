@@ -4,30 +4,41 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Policies;
 
 public class AgentHood : Agent
 {
+    BehaviorType behaviorType;
+    BehaviorParameters behaviorParameters;
+
+
+    bool isHeuristicPause = false;
+    float fixedHeuristicPauseTime = 2.0f;
+    float currentHeuristicPauseTime = 0.0f;
+
+
+
     Neighbourhood nh;
     EnvironmentParameters defaultParameters;
 
+    const float timeBetweenDecisionsAtInference = .1f;
+    float timeSinceDecision;
+
+
     public override void Initialize()
     {
+        behaviorParameters = gameObject.GetComponent<BehaviorParameters>();
+        behaviorType = behaviorParameters.BehaviorType;
+
         nh = this.GetComponent<Neighbourhood>();
         defaultParameters = Academy.Instance.EnvironmentParameters;
         ResetScene();
-    }
 
-    public void InitTest()
-    {
-        nh = new Neighbourhood();
-        nh.TestStart();
-        defaultParameters = Academy.Instance.EnvironmentParameters;
-        ResetScene();
+        nh.IsTraining = Academy.Instance.IsCommunicatorOn;
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        //sensor.AddObservation()
         foreach (var building in nh.Buildings)
             sensor.AddObservation(building);
     }
@@ -47,7 +58,7 @@ public class AgentHood : Agent
             var isComplete = nh.IsComplete();
             if(isComplete)
             {
-                Debug.Log("complete");
+                //Debug.Log("complete");
                 //SetReward(pop * 2);
                 AddReward(2);
                 EndEpisode();
@@ -61,8 +72,7 @@ public class AgentHood : Agent
         else
         {
             //SetReward(pop - .5f);
-            if (pop > 1)
-                Debug.Log("pop:" + pop);
+            //if (pop > 1) Debug.Log("pop:" + pop);
             //SetReward(pop);
             EndEpisode();
         }
@@ -71,6 +81,7 @@ public class AgentHood : Agent
     void ResetScene()
     {
         //Debug.Log("reset");
+        isHeuristicPause = true;
         nh.Reset();
     }
 
@@ -81,38 +92,49 @@ public class AgentHood : Agent
 
     public void FixedUpdate()
     {
-        WaitTimeInference();
-    }
-
-    void WaitTimeInference()
-    {
-        if (Academy.Instance.IsCommunicatorOn)
+        // Make a move every step if we're training, or we're overriding models in CI.
+        var useFast = Academy.Instance.IsCommunicatorOn;//) || (m_ModelOverrider != null && m_ModelOverrider.HasOverrides);
+        if (useFast)
         {
-            //if ((area.teamTurn == TEAM_TURN_O && teamId == TEAM_ID_O) || (area.teamTurn == TEAM_TURN_X && teamId == TEAM_ID_X))
+            FastUpdate();
+        }
+        else
+        {
+            AnimatedUpdate();
+        }
+    }
+            
+    void FastUpdate() => RequestDecision();
+
+    void AnimatedUpdate()
+    {
+        if (isHeuristicPause)
+        {
+            if (currentHeuristicPauseTime > fixedHeuristicPauseTime)
             {
+                isHeuristicPause = false;
+                currentHeuristicPauseTime = 0.0f;
+            }
+            currentHeuristicPauseTime += Time.fixedDeltaTime;
+        }
+
+
+        if (timeSinceDecision >= timeBetweenDecisionsAtInference)
+        {
+            timeSinceDecision = 0f;
+            {
+                //heuristic mode need break between games to ensure proper action
+                if (behaviorType == BehaviorType.HeuristicOnly && isHeuristicPause)
+                {
+                    return;
+                }
                 RequestDecision();
             }
         }
         else
         {
-/*
-            if (m_TimeSinceDecision >= timeBetweenDecisionsAtInference)
-            {
-                m_TimeSinceDecision = 0f;
-                if ((area.teamTurn == TEAM_TURN_O && teamId == TEAM_ID_O) || (area.teamTurn == TEAM_TURN_X && teamId == TEAM_ID_X))
-                {
-                    //heuristic mode need break between games to ensure proper action
-                    if (behaviorType == BehaviorType.HeuristicOnly && area.isHeuristicPause)
-                    {
-                        return;
-                    }
-                    RequestDecision();
-                }
-            }
-            else
-            {
-                m_TimeSinceDecision += Time.fixedDeltaTime;
-            }*/
+            timeSinceDecision += Time.fixedDeltaTime;
         }
+
     }
 }
