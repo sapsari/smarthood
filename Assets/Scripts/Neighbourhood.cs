@@ -5,14 +5,23 @@ using System.Linq;
 
 public class Neighbourhood : MonoBehaviour
 {
-    public int[] Buildings;
+
     public bool IsTraining;
+
+    public Lot[] lots;
+
+    const int rowSize = 4;
+    const int colSize = 4;
 
     // Start is called before the first frame update
     void Start()
     {
-        Buildings = new int[4 * 4];
-        //Buildings = new int[2 * 2];
+        lots = new Lot[rowSize * colSize];
+        for (int i = 0; i < rowSize * colSize; i++)
+        {
+            lots[i] = new Lot();
+            lots[i].Reset();
+        }
     }
 
     // Update is called once per frame
@@ -21,45 +30,117 @@ public class Neighbourhood : MonoBehaviour
         
     }
 
+
+
     public void TestStart() => Start();
 
-    public bool Build(int location, int typ)
+
+    public bool Build(int location, LotType lotType)
     {
         //Debug.Log("Build " + location + " " + typ);
 
-        if (location < 0 || location >= Buildings.Length)
+        if (location < 0 || location >= lots.Length)
             return false;
-        if (typ < 0 || typ > 1)
+        if (lotType == LotType.Invalid || lotType == LotType.Empty)
             return false;
-        if (Buildings[location] != 0)
-            return false;
-
-        if (typ == 0)
+        if (lots[location].Type != LotType.Empty)
             return false;
 
-        Buildings[location] = typ;
+        lots[location].Type = lotType;
 
-        if (!IsTraining)
-            transform.GetChild(location).GetComponent<Renderer>().material.color = Color.green;
+        if (lotType == LotType.House)
+        {
+            var left = location - 1;
+            var right = location + 1;
+            var up = location - rowSize;
+            var down = location + rowSize;
+
+            if (
+                (left >= 0 && lots[left].Type == LotType.Park) ||
+                (right < rowSize * colSize && lots[right].Type == LotType.Park) ||
+                (up >= 0 && lots[up].Type == LotType.Park) ||
+                (down < rowSize * colSize && lots[down].Type == LotType.Park)
+                )
+                lots[location].NextToPark = true;
+        }
+
+        else if (lotType == LotType.Park)
+        {
+            var left = location - 1;
+            var right = location + 1;
+            var up = location - rowSize;
+            var down = location + rowSize;
+
+            if (left >= 0 && lots[left].Type == LotType.House)
+                lots[left].NextToPark = true;
+            if (right < rowSize * colSize && lots[right].Type == LotType.House)
+                lots[right].NextToPark = true;
+            if (up >= 0 && lots[up].Type == LotType.House)
+                lots[up].NextToPark = true;
+            if (down < rowSize * colSize && lots[down].Type == LotType.House)
+                lots[down].NextToPark = true;
+        }
+
+        SetColor(location);
 
         return true;
     }
 
+    void SetColor(int location)
+    {
+        if (!IsTraining)
+        {
+            var lotType = lots[location].Type;
+
+            Color color;
+            switch (lotType)
+            {
+                case LotType.Invalid:
+                    color = Color.gray;
+                    break;
+                case LotType.Empty:
+                    color = Color.white;
+                    break;
+                case LotType.House:
+                    color = Color.yellow;
+                    break;
+                case LotType.Park:
+                    color = Color.green;
+                    break;
+                default:
+                    color = Color.black;
+                    break;
+            }
+
+            transform.GetChild(location).GetComponent<Renderer>().material.color = color;
+        }
+    }
+
     public int GetPopulation() =>
-        Buildings.Count(b => b == 1);
+        lots.Sum(l => l.Population);
 
     public bool IsComplete() =>
-        Buildings.All(b => b != 0);
+        lots.All(l => l.Type != LotType.Empty);
 
     public void Reset()
     {
-        for (int i = 0; i < Buildings.Length; i++)
-            Buildings[i] = 0;
+        if (lots == null)
+            return;
+
+        for (int i = 0; i < lots.Length; i++)
+            lots[i].Reset();
+
+        var invalidCount = Random.Range(1, 4);
+        for (int i = 0; i < invalidCount; i++)
+            lots[Random.Range(0, rowSize * colSize)].Type = LotType.Invalid;
 
         if (!IsTraining)
         {
-            foreach (Transform child in transform)
-                child.GetComponent<Renderer>().material.color = Color.white;
+            for (int i = 0; i < rowSize * colSize; i++)
+                SetColor(i);
+
+            //foreach (Transform child in transform)
+                //child.GetComponent<Renderer>().material.color = Color.white;
         }
     }
 }

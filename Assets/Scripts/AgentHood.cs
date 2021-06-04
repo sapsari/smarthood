@@ -34,13 +34,13 @@ public class AgentHood : Agent
         defaultParameters = Academy.Instance.EnvironmentParameters;
         ResetScene();
 
-        nh.IsTraining = Academy.Instance.IsCommunicatorOn;
+        nh.IsTraining = IsTraining;
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        foreach (var building in nh.Buildings)
-            sensor.AddObservation(building);
+        foreach (var building in nh.lots)
+            sensor.AddObservation((int)building.Type);
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -49,7 +49,7 @@ public class AgentHood : Agent
         var typ = actions.DiscreteActions[1];
 
         //Debug.Log("rew:" + nh.GetPopulation());
-        var hasBuilt = nh.Build(pos, typ);
+        var hasBuilt = nh.Build(pos, (LotType)typ);
         var pop = nh.GetPopulation();
         //Debug.Log("end");
 
@@ -60,13 +60,14 @@ public class AgentHood : Agent
             {
                 //Debug.Log("complete");
                 //SetReward(pop * 2);
-                AddReward(2);
+                //AddReward(2);
+                SetReward(pop + 3);
                 EndEpisode();
             }
             else
             {
-                //SetReward(pop);
-                AddReward(1);
+                SetReward(pop);
+                //AddReward(1);
             }
         }
         else
@@ -74,6 +75,12 @@ public class AgentHood : Agent
             //SetReward(pop - .5f);
             //if (pop > 1) Debug.Log("pop:" + pop);
             //SetReward(pop);
+
+            /*
+            if (!Academy.Instance.IsCommunicatorOn)
+                this.enabled = false;
+            */
+
             EndEpisode();
         }
     }
@@ -85,15 +92,18 @@ public class AgentHood : Agent
         nh.Reset();
     }
 
+    bool IsTraining => Academy.Instance.IsCommunicatorOn;
+
     public override void OnEpisodeBegin()
     {
-        ResetScene();
+        if (IsTraining || CompletedEpisodes == 0)
+            ResetScene();
     }
 
     public void FixedUpdate()
     {
         // Make a move every step if we're training, or we're overriding models in CI.
-        var useFast = Academy.Instance.IsCommunicatorOn;//) || (m_ModelOverrider != null && m_ModelOverrider.HasOverrides);
+        var useFast = IsTraining;//) || (m_ModelOverrider != null && m_ModelOverrider.HasOverrides);
         if (useFast)
         {
             FastUpdate();
