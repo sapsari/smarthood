@@ -5,6 +5,7 @@ using System.Linq;
 
 public class Neighbourhood : MonoBehaviour
 {
+    City city;
 
     public bool IsTraining;
 
@@ -22,6 +23,8 @@ public class Neighbourhood : MonoBehaviour
             lots[i] = new Lot();
             lots[i].Reset();
         }
+
+        city = FindObjectOfType<City>();
     }
 
     // Update is called once per frame
@@ -30,9 +33,6 @@ public class Neighbourhood : MonoBehaviour
         
     }
 
-
-
-    public void TestStart() => Start();
 
 
     public bool Build(int location, LotType lotType)
@@ -82,6 +82,7 @@ public class Neighbourhood : MonoBehaviour
         }
 
         SetColor(location);
+        InsertModel(location);
 
         return true;
     }
@@ -116,6 +117,38 @@ public class Neighbourhood : MonoBehaviour
         }
     }
 
+    void InsertModel(int location)
+    {
+        if (IsTraining)
+            return;
+
+        var lotType = lots[location].Type;
+        GameObject prefab;
+        switch (lotType)
+        {
+            case LotType.Invalid:
+                prefab = city.PrefabBoulder;
+                break;
+            case LotType.Empty:
+                prefab = null;
+                break;
+            case LotType.House:
+                prefab = city.PrefabHouse;
+                break;
+            case LotType.Park:
+                prefab = city.PrefabPark;
+                break;
+            default:
+                prefab = null;
+                break;
+        }
+
+        if (prefab != null)
+        {
+            Instantiate(prefab, transform.GetChild(location));
+        }
+    }
+
     public int GetPopulation() =>
         lots.Sum(l => l.Population);
 
@@ -132,7 +165,11 @@ public class Neighbourhood : MonoBehaviour
 
         var invalidCount = Random.Range(1, 4);
         for (int i = 0; i < invalidCount; i++)
-            lots[Random.Range(0, rowSize * colSize)].Type = LotType.Invalid;
+        {
+            var location = Random.Range(0, rowSize * colSize);
+            lots[location].Type = LotType.Invalid;
+            InsertModel(location);
+        }
 
         if (!IsTraining)
         {
