@@ -105,9 +105,8 @@ public class City : MonoBehaviour
         
         newNH.transform.localPosition = new Vector3(y * 60, 0, x * 60);
         var nh = newNH.GetComponent<Neighbourhood>();
-        var ah = newNH.GetComponent<AgentHood>();
-        nh.Start();
-        nh.Reset();
+        //var ah = newNH.GetComponent<AgentHood>();
+        //nh.Reset();
         //ah.Initialize();
 
         array[x, y] = nh;

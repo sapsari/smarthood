@@ -7,19 +7,17 @@ public class Neighbourhood : MonoBehaviour
 {
     City city;
 
-    public bool IsTraining;
+    //public bool IsTraining { get; set; }
+    bool IsTraining => Unity.MLAgents.Academy.Instance.IsCommunicatorOn;
+
 
     public Lot[] lots;
 
     const int rowSize = 4;
     const int colSize = 4;
 
-    // Start is called before the first frame update
-    public void Start()
+    public void Awake()
     {
-        if (lots != null)
-            return;
-
         lots = new Lot[rowSize * colSize];
         for (int i = 0; i < rowSize * colSize; i++)
         {
@@ -161,10 +159,6 @@ public class Neighbourhood : MonoBehaviour
 
     public void Reset()
     {
-        if (lots == null)
-            //return;//**--
-            Start();
-
         for (int i = 0; i < lots.Length; i++)
             lots[i].Reset();
 

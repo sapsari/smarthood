@@ -33,8 +33,6 @@ public class AgentHood : Agent
         nh = this.GetComponent<Neighbourhood>();
         defaultParameters = Academy.Instance.EnvironmentParameters;
         ResetScene();
-
-        nh.IsTraining = IsTraining;
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -99,7 +97,7 @@ public class AgentHood : Agent
 
     public override void OnEpisodeBegin()
     {
-        if (IsTraining || CompletedEpisodes == 0)
+        if (IsTraining)// && CompletedEpisodes != 0)
             ResetScene();
     }
 
