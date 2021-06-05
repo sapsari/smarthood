@@ -53,56 +53,14 @@ public class City : MonoBehaviour
     {
         var r1 = array.GetLength(0);
         var r2 = array.GetLength(1);
-
-        var found = false;
-        var x = -1;
-        var y = -1;
-        if (dir == 0)//south
-        {
-            for (int i = 0; i < r1; i++)
-            {
-                if (array[i, r2 - 1] == null)
-                {
-                    found = true;
-                    x = i;
-                    y = r2 - 1;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                array = ResizeArray(array, r1 + 1, r2);
-                x = r1;
-                y = r2 - 1;
-            }
-        }
-        if (dir == 1)
-        {
-            for (int i = 0; i < r2; i++)
-            {
-                if (array[r1 - 1, i] == null)
-                {
-                    found = true;
-                    x = r1 - 1;
-                    y = i;
-                    break;
-                }
-            }
-
-            if(!found)
-            {
-                array = ResizeArray(array, r1, r2 + 1);
-                x = r1 - 1;
-                y = r2;
-            }
-        }
+        int x, y;
+        GetExpansionCoords(dir, r1, r2, out x, out y);
 
 
         //var newNH = Instantiate(transform.GetChild(0), transform);
         var newNH = Instantiate(PrefabNH, transform);
 
-        
+
         newNH.transform.localPosition = new Vector3(y * 60, 0, x * 60);
         var nh = newNH.GetComponent<Neighbourhood>();
         //var ah = newNH.GetComponent<AgentHood>();
@@ -111,9 +69,62 @@ public class City : MonoBehaviour
 
         array[x, y] = nh;
         neighbourhoods.Add(nh);
-        
+
 
         //var ah = newNH.GetComponent<AgentHood>();
         //ah.enabled = false;
+    }
+
+    private void GetExpansionCoords(int dir, int r1, int r2, out int x, out int y)
+    {
+        var found = false;
+        x = -1;
+        y = -1;
+        if (dir == 0)//south
+        {
+            for (int i = 0; i < r1; i++)
+            {
+                for (int j = 0; j < r2 - 1; j++)
+                {
+                    if (array[i, j] == null)
+                    {
+                        found = true;
+                        x = i;
+                        y = j;
+                        break;
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                array = ResizeArray(array, r1 + 1, r2);
+                x = r1;
+                y = 0;
+            }
+        }
+        if (dir == 1)
+        {
+            for (int j = 0; j < r2; j++)
+            {
+                for (int i = 0; i < r1 - 1; i++)
+                {
+                    if (array[i, j] == null)
+                    {
+                        found = true;
+                        x = i;
+                        y = j;
+                        break;
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                array = ResizeArray(array, r1, r2 + 1);
+                x = 0;
+                y = r2;
+            }
+        }
     }
 }

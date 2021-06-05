@@ -51,7 +51,7 @@ namespace RTS_Cam
         public float keyboardZoomingSensitivity = 2f;
         public float scrollWheelZoomingSensitivity = 25f;
 
-        private float zoomPos = 0; //value in range (0, 1) used as t in Matf.Lerp
+        public float zoomPos = 0; //value in range (0, 1) used as t in Matf.Lerp
 
         #endregion
 
