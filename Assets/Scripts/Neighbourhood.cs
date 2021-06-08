@@ -155,7 +155,8 @@ public class Neighbourhood : MonoBehaviour
 
         if (prefab != null)
         {
-            Instantiate(prefab, transform.GetChild(location));
+            var go = Instantiate(prefab, transform.GetChild(location));
+            go.SetActive(true);
         }
     }
 
@@ -192,5 +193,66 @@ public class Neighbourhood : MonoBehaviour
 
     public void Reset() => Reset(null, null, null);
 
-    public void Reset(NHData data) => Reset(data.BlockedLotCount, data.HousePopulation, data.ParkBonus);  
+    public void Reset(NHData data) => Reset(data.BlockedLotCount, data.HousePopulation, data.ParkBonus);
+
+
+    public string GetTooltip(GameObject go)
+    {
+
+        var index = -1;
+        var cc = transform.childCount;
+        for (int i = 0; i < cc; i++)
+        {
+            var child = transform.GetChild(i).transform;
+            var found = false;
+
+            var parent = go.transform.parent;
+            while (parent != null)
+            {
+                if (parent == child)
+                {
+                    found = true;
+                    break;
+                }
+
+                parent = parent.parent;
+            }
+
+            if (found)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1)
+        {
+            var lot = lots[index];
+            var typ = lot.Type;
+            var next = lot.NextToPark;
+            string str;
+            switch (typ)
+            {
+                case LotType.Invalid:
+                    str = "Blocked";
+                    break;
+                case LotType.Empty:
+                    str= "Empty Lot";
+                    break;
+                case LotType.House:
+                    str= $"House\nPopulation:{housePop}" + (next ? $"+{parkBonus}" : "");
+                    break;
+                case LotType.Park:
+                    str= $"Park\nBonus Population:{parkBonus}";
+                    break;
+                default:
+                    str = "INVALID2";
+                    break;
+            }
+            return str + $"\nNeighbourhood:{GetPopulation()}";
+        }
+
+
+        return "INVALID3";
+    }
 }
