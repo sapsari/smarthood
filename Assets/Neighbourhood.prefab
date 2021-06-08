@@ -935,7 +935,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 16
+    VectorObservationSize: 18
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -944,7 +944,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a03709ec0bef06447a552af7ed5a2e63, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: d0850d4c3f662e444a6332eae25c60de, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: My Behavior
@@ -980,7 +980,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1551ebb7a62476c498278a363b2c5a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsTraining: 0
+  housePop: 1
+  parkBonus: 1
 --- !u!1 &3173445503839023136
 GameObject:
   m_ObjectHideFlags: 0

@@ -40,6 +40,8 @@ public class AgentHood : Agent
         if (nh == null || nh.lots == null) // called when disabling the component
             return;
 
+        sensor.AddObservation(nh.housePop);
+        sensor.AddObservation(nh.parkBonus);
         foreach (var building in nh.lots)
             sensor.AddObservation((int)building.Type);
     }
@@ -90,7 +92,8 @@ public class AgentHood : Agent
     {
         //Debug.Log("reset");
         isHeuristicPause = true;
-        nh.Reset();
+        if (IsTraining)
+            nh.Reset();
     }
 
     bool IsTraining => Academy.Instance.IsCommunicatorOn;

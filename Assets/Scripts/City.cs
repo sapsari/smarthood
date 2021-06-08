@@ -16,6 +16,8 @@ public class City : MonoBehaviour
 
     Neighbourhood[,] array;
 
+    public NHData dataNorth, dataEast;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,20 +25,13 @@ public class City : MonoBehaviour
         neighbourhoods = new List<Neighbourhood>(children);
         array = new Neighbourhood[1, 1];
         array[0, 0] = neighbourhoods[0];
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        dataNorth = new NHData();
+        dataEast = new NHData();
+
     }
 
     public int Population => neighbourhoods.Sum(n => n.GetPopulation());
-
-    public void AddNH(Vector2Int coords)
-    {
-
-    }
 
     T[,] ResizeArray<T>(T[,] original, int rows, int cols)
     {
@@ -49,7 +44,7 @@ public class City : MonoBehaviour
         return newArray;
     }
 
-    public void Expand(int dir)
+    public void Expand(int dir)//0->north,1->east
     {
         var r1 = array.GetLength(0);
         var r2 = array.GetLength(1);
@@ -66,9 +61,13 @@ public class City : MonoBehaviour
         //var ah = newNH.GetComponent<AgentHood>();
         //nh.Reset();
         //ah.Initialize();
+        nh.Reset(dir == 0 ? dataNorth : dataEast);
 
         array[x, y] = nh;
         neighbourhoods.Add(nh);
+
+        dataNorth = new NHData();
+        dataEast = new NHData();
 
 
         //var ah = newNH.GetComponent<AgentHood>();
@@ -80,7 +79,7 @@ public class City : MonoBehaviour
         var found = false;
         x = -1;
         y = -1;
-        if (dir == 0)//south
+        if (dir == 0)//north
         {
             for (int i = 0; i < r1; i++)
             {

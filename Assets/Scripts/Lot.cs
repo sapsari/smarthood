@@ -17,7 +17,12 @@ public class Lot
 {
     public LotType Type;
     public bool NextToPark;
-    public int Population => Type == LotType.House ? (NextToPark ? 2 : 1) : 0;
+    //public int Population => Type == LotType.House ? (NextToPark ? 2 : 1) : 0;
+
+    public int GetPopulation(int housePop, int parkBonus)
+    {
+        return Type == LotType.House ? (NextToPark ? (housePop + parkBonus) : housePop) : 0;
+    }
 
     public void Reset()
     {

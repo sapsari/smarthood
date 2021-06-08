@@ -16,6 +16,14 @@ public class Neighbourhood : MonoBehaviour
     const int rowSize = 4;
     const int colSize = 4;
 
+    public int housePop = 1;
+    public int parkBonus = 1;
+
+
+    public const int MaxInvalidLotCount = 3;
+    public const int MaxHousePop = 3;
+    public const int MaxParkBonus = 3;
+
     public void Awake()
     {
         lots = new Lot[rowSize * colSize];
@@ -152,23 +160,25 @@ public class Neighbourhood : MonoBehaviour
     }
 
     public int GetPopulation() =>
-        lots.Sum(l => l.Population);
+        lots.Sum(l => l.GetPopulation(housePop, parkBonus));
 
     public bool IsComplete() =>
         lots.All(l => l.Type != LotType.Empty);
 
-    public void Reset()
+    void Reset(int? invalidLotCount, int? housePop, int? parkBonus)
     {
         for (int i = 0; i < lots.Length; i++)
             lots[i].Reset();
 
-        var invalidCount = Random.Range(1, 4);
+        var invalidCount = invalidLotCount ?? Random.Range(1, MaxInvalidLotCount + 1);
         for (int i = 0; i < invalidCount; i++)
         {
             var location = Random.Range(0, rowSize * colSize);
             lots[location].Type = LotType.Invalid;
             InsertModel(location);
         }
+        this.housePop = housePop ?? Random.Range(1, MaxHousePop + 1);
+        this.parkBonus = parkBonus ?? Random.Range(1, MaxParkBonus + 1);
 
         if (!IsTraining)
         {
@@ -179,4 +189,8 @@ public class Neighbourhood : MonoBehaviour
                 //child.GetComponent<Renderer>().material.color = Color.white;
         }
     }
+
+    public void Reset() => Reset(null, null, null);
+
+    public void Reset(NHData data) => Reset(data.BlockedLotCount, data.HousePopulation, data.ParkBonus);  
 }
