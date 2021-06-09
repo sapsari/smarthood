@@ -3,6 +3,11 @@
 **Play:**
 https://sapsari.itch.io/smarthood
 
+A city-builder simulation game for AI and Games Jam 2021.
+https://itch.io/jam/aiandgames-2021
+
+As player, you should choose building types and their bonuses for each neighbourhood. Then AI (Unity ML-Agents) automatically constructs the buildings in the lots (or generate the neighbourhood) for the optimum outcome. 
+
 **Setup:**
 Insert mlagents packages into directory Packages (version 2.0+), or add it from package manager.
 https://github.com/Unity-Technologies/ml-agents/releases/tag/latest_release
